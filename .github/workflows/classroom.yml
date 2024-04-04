@@ -1,0 +1,33 @@
+name: Autograding Tests
+'on':
+  schedule:
+  - cron: '20 17 * * *'
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom-staging[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Hello World
+      id: hello-world
+      uses: education/autograding-io-grader@v1
+      with:
+        test-name: Hello World
+        setup-command: ''
+        command: npm test
+        input: 1 + 1
+        expected-output: '2'
+        comparison-method: exact
+        timeout: 10
+        max-score: 5
+    - name: Autograding Reporter
+      uses: education/autograding-grading-reporter@v1
+      env:
+        HELLO-WORLD_RESULTS: "${{steps.hello-world.outputs.result}}"
+      with:
+        runners: hello-world
